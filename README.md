@@ -2,6 +2,8 @@
 
 基于 [FastMCP](https://github.com/jlowin/fastmcp) 框架构建的 MCP（Model Context Protocol）服务，封装迅投 `xtquant.xtdata` 行情数据接口，通过 SSE 传输协议提供行情查询能力。
 
+**联系方式（微信）：** gold98986868、15518184045
+
 ## 环境要求
 
 - Python >= 3.12
