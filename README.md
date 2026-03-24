@@ -10,6 +10,13 @@
 
 ## 快速开始
 
+### 克隆项目
+
+```bash
+git clone https://github.com/novaair026-dev/qmt-trade-mcp.git
+cd qmt-trade-mcp
+```
+
 ### 安装依赖
 
 ```bash
