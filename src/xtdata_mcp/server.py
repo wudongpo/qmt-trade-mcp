@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Any
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 from fastmcp import FastMCP
 
@@ -437,8 +439,16 @@ def download_holiday_data() -> dict[str, Any]:
     return _run(xtdata.download_holiday_data)
 
 
+def get_app() -> Any:
+    """获取 ASGI 应用，供 uvicorn 等服务器使用。"""
+    return mcp.streamable_http_app()
+
+
 def main() -> None:
-    mcp.run()
+    import os
+    host = os.getenv("MCP_HOST", "127.0.0.1")
+    port = int(os.getenv("MCP_PORT", "8000"))
+    mcp.run(transport="sse", host=host, port=port)
 
 
 if __name__ == "__main__":
