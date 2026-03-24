@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "mcp__MiniMax__web_search",
-      "WebFetch(domain:www.cnblogs.com)"
+      "WebFetch(domain:www.cnblogs.com)",
+      "WebFetch(domain:dict.thinktrader.net)",
+      "Bash(uv add:*)",
+      "Bash(uv run:*)",
+      "Bash(uv run python -c \":*)",
+      "Bash(python:*)",
+      "Bash(echo:*)",
+      "WebSearch",
+      "WebFetch(domain:blog.csdn.net)"
     ]
   }
 }
