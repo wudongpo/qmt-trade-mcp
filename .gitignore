@@ -8,7 +8,6 @@ __pycache__/
 
 # Distribution / packaging
 .Python
-.claude
 build/
 develop-eggs/
 dist/
@@ -206,3 +205,6 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Claude Code
+.claude/
