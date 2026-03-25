@@ -512,25 +512,6 @@ def get_stock_list_in_sector(sector_name: str, real_timetag: int = 0) -> dict[st
 
 
 @mcp.tool()
-def download_sector_data() -> dict[str, Any]:
-    """
-    下载板块分类信息到本地。
-
-    输入参数:
-        无
-
-    输出:
-        dict[str, Any] - 无返回值（None）
-
-    功能说明:
-        下载所有板块（行业、概念分类）的成分信息到本地缓存。
-        下载完成后可通过 get_sector_list 和 get_stock_list_in_sector 查询板块信息。
-    """
-    xtdata = _xtdata()
-    return _run(xtdata.download_sector_data)
-
-
-@mcp.tool()
 def get_index_weight(index_code: str) -> dict[str, Any]:
     """
     获取指数成分股及其权重信息。
@@ -619,30 +600,6 @@ def get_financial_data(
 
 
 @mcp.tool()
-def download_financial_data(
-    stock_list: list[str],
-    table_list: list[str] | None = None,
-) -> dict[str, Any]:
-    """
-    下载指定股票的财务数据。
-
-    输入参数:
-        stock_list: list[str] - 股票代码列表，格式为 '代码.市场'
-        table_list: list[str] | None - 财务表格类型列表，默认为空（下载所有表格）。
-            可选值同 get_financial_data
-
-    输出:
-        dict[str, Any] - 无返回值（None）
-
-    功能说明:
-        将指定股票的财务数据下载到本地缓存。
-        下载完成后可通过 get_financial_data 查询财务数据。
-    """
-    xtdata = _xtdata()
-    return _run(xtdata.download_financial_data, stock_list, table_list or [])
-
-
-@mcp.tool()
 def get_cb_info(stockcode: str) -> dict[str, Any]:
     """
     获取可转债（Convertible Bond）基础信息。
@@ -659,25 +616,6 @@ def get_cb_info(stockcode: str) -> dict[str, Any]:
     """
     xtdata = _xtdata()
     return _run(xtdata.get_cb_info, stockcode)
-
-
-@mcp.tool()
-def download_cb_data() -> dict[str, Any]:
-    """
-    下载所有可转债的基础信息到本地。
-
-    输入参数:
-        无
-
-    输出:
-        dict[str, Any] - 无返回值（None）
-
-    功能说明:
-        下载全市场可转债的基本信息到本地缓存。
-        下载完成后可通过 get_cb_info 查询各可转债详细信息。
-    """
-    xtdata = _xtdata()
-    return _run(xtdata.download_cb_data)
 
 
 @mcp.tool()
@@ -712,25 +650,6 @@ def get_ipo_info(start_time: str = "", end_time: str = "") -> dict[str, Any]:
 
 
 @mcp.tool()
-def download_etf_info() -> dict[str, Any]:
-    """
-    下载所有 ETF 申赎清单信息到本地。
-
-    输入参数:
-        无
-
-    输出:
-        dict[str, Any] - 无返回值（None）
-
-    功能说明:
-        下载全市场 ETF 的申购赎回清单（PCF 文件）到本地缓存。
-        包含 ETF 的成分股及其权重信息，是 ETF 套利策略的重要数据源。
-    """
-    xtdata = _xtdata()
-    return _run(xtdata.download_etf_info)
-
-
-@mcp.tool()
 def get_etf_info() -> dict[str, Any]:
     """
     获取所有 ETF 申赎清单信息。
@@ -743,30 +662,10 @@ def get_etf_info() -> dict[str, Any]:
 
     功能说明:
         获取全市场 ETF 的申购赎回清单（PCF）信息。
-        需先调用 download_etf_info 下载 ETF 信息。
         用于 ETF 套利、ETF 期现套利等量化策略。
     """
     xtdata = _xtdata()
     return _run(xtdata.get_etf_info)
-
-
-@mcp.tool()
-def download_holiday_data() -> dict[str, Any]:
-    """
-    下载节假日数据到本地。
-
-    输入参数:
-        无
-
-    输出:
-        dict[str, Any] - 无返回值（None）
-
-    功能说明:
-        下载全年节假日数据到本地缓存。
-        下载完成后可通过 get_holidays 和 get_trading_calendar 查询节假日和交易日信息。
-    """
-    xtdata = _xtdata()
-    return _run(xtdata.download_holiday_data)
 
 
 def get_app() -> Any:

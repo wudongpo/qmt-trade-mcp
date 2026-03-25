@@ -56,11 +56,11 @@ qmt-trade-mcp/
 │       └── server.py            # 核心实现，所有 MCP tools
 └── tests/
     ├── __init__.py
-    ├── conftest.py            # pytest fixtures（内存传输测试客户端）
+    ├── conftest.py            # pytest fixtures（HTTP/SSE 传输测试客户端）
     └── test_server.py         # 各 tool 功能测试
 ```
 
-## 提供的 MCP Tools（共 25 个）
+## 提供的 MCP Tools（共 21 个）
 
 所有工具均支持通过 MCP 客户端调用，返回统一 JSON 格式。
 
@@ -94,7 +94,6 @@ qmt-trade-mcp/
 | `get_holidays` | 获取当前年度所有节假日日期 |
 | `get_trading_calendar` | 获取指定市场的交易日历 |
 | `get_trading_dates` | 获取交易日列表（时间戳格式） |
-| `download_holiday_data` | 下载节假日数据到本地 |
 
 ### 合约与板块
 
@@ -104,7 +103,6 @@ qmt-trade-mcp/
 | `get_instrument_type` | 判断合约类型（股票/指数/基金/ETF） |
 | `get_sector_list` | 获取所有可用板块列表 |
 | `get_stock_list_in_sector` | 获取指定板块的成分股列表 |
-| `download_sector_data` | 下载板块分类信息 |
 | `get_index_weight` | 获取指数成分股及其权重 |
 | `download_index_weight` | 下载指数成分权重数据 |
 
@@ -113,21 +111,18 @@ qmt-trade-mcp/
 | Tool | 说明 |
 |------|------|
 | `get_financial_data` | 获取财务数据（资产负债表/利润表等） |
-| `download_financial_data` | 下载指定股票的财务数据 |
 
 ### 可转债
 
 | Tool | 说明 |
 |------|------|
 | `get_cb_info` | 获取可转债基础信息 |
-| `download_cb_data` | 下载全市场可转债信息 |
 
 ### 新股 / ETF
 
 | Tool | 说明 |
 |------|------|
 | `get_ipo_info` | 获取新股申购信息 |
-| `download_etf_info` | 下载 ETF 申赎清单信息 |
 | `get_etf_info` | 获取 ETF 申赎清单信息 |
 
 ## 响应格式
@@ -145,11 +140,11 @@ qmt-trade-mcp/
 ## 测试
 
 ```bash
-# 运行所有 tool 的功能测试
+# 运行所有 tool 的功能测试（需先启动 MCP 服务）
 uv run pytest tests/test_server.py -v
 ```
 
-测试使用 FastMCP Client 内存传输，无需启动服务器，每个测试调用真实 xtquant 接口验证功能正常。
+测试使用 FastMCP Client HTTP/SSE 传输连接运行中的 MCP 服务（`http://127.0.0.1:8000/sse`），每个测试调用真实 xtquant 接口验证功能正常。
 
 ## 部署说明
 
@@ -235,4 +230,4 @@ claude mcp list
 
 - 使用前需确保 QMT 客户端**已登录运行**，且登录时需**勾选"独立交易"选项**，否则所有工具返回 `ok: false`
 - 首次使用需先调用 `download_*` 系列工具下载本地数据
-- 部分工具（如财务数据下载）数据量较大，调用时可能耗时较长
+- 部分工具（如 `download_history_data2`、`download_index_weight`）数据量较大，调用时可能耗时较长
