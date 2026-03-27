@@ -1,8 +1,8 @@
 # qmt-trade-mcp
 
-基于 [FastMCP](https://github.com/jlowin/fastmcp) 框架构建的 MCP（Model Context Protocol）服务，封装迅投 `xtquant.xtdata` 行情数据接口，通过 SSE 传输协议提供行情查询能力。
+基于 [FastMCP](https://github.com/jlowin/fastmcp) 框架构建的 MCP（Model Context Protocol）服务，封装迅投 `xtquant` 行情数据接口和交易接口，通过 SSE 传输协议提供行情查询和交易能力。
 
-**免责声明：AI 可能会犯错，用户需自行承担交易带来的损失。**
+**免责声明：AI 可能会犯错，用户需自行承担交易带来的损失。本服务仅提供接口封装，不对交易结果负责。**
 
 **联系方式（微信）：** gold98986868、Az184114
 
@@ -47,20 +47,25 @@ MCP_HOST=0.0.0.0 MCP_PORT=9000 uv run python main.py
 
 ```
 qmt-trade-mcp/
-├── main.py                     # 服务入口，uvicorn 加载 ASGI 应用
+├── main.py                     # 服务入口，uvicorn 加载合并后的 MCP 应用
 ├── pyproject.toml              # 项目配置及依赖
 ├── src/
-│   └── xtdata_mcp/
-│       ├── __init__.py         # 包初始化
-│       ├── __main__.py         # 模块级入口
-│       └── server.py            # 核心实现，所有 MCP tools
+│   ├── xtdata_mcp/             # 行情数据模块
+│   │   ├── __init__.py
+│   │   ├── __main__.py
+│   │   └── server.py            # 21 个行情数据 tools
+│   └── xttrade_mcp/            # 交易模块
+│       ├── __init__.py
+│       ├── __main__.py
+│       └── server.py            # 37 个交易 tools
 └── tests/
     ├── __init__.py
     ├── conftest.py            # pytest fixtures（HTTP/SSE 传输测试客户端）
-    └── test_server.py         # 各 tool 功能测试
+    ├── test_server.py         # 行情 tool 功能测试
+    └── test_trader.py         # 交易 tool 功能测试
 ```
 
-## 提供的 MCP Tools（共 21 个）
+## 提供的 MCP Tools（共 58 个）
 
 所有工具均支持通过 MCP 客户端调用，返回统一 JSON 格式。
 
@@ -125,6 +130,78 @@ qmt-trade-mcp/
 | `get_ipo_info` | 获取新股申购信息 |
 | `get_etf_info` | 获取 ETF 申赎清单信息 |
 
+---
+
+## 交易模块 MCP Tools（37 个）
+
+**注意：交易工具需要先调用 `init_trader` 初始化连接，并保持 QMT 客户端登录运行。**
+
+### 系统设置
+
+| Tool | 说明 |
+|------|------|
+| `init_trader` | 初始化交易通道并连接到 MiniQMT |
+| `start_trader` | 启动交易线程 |
+| `connect_trader` | 连接 MiniQMT |
+| `stop_trader` | 停止交易通道 |
+| `subscribe_account` | 订阅账户信息 |
+| `unsubscribe_account` | 取消订阅账户 |
+| `set_relaxed_response_order_enabled` | 设置是否启用专用线程处理订单响应 |
+| `register_trader_callback` | 注册交易回调处理器 |
+
+### 下单 / 撤单
+
+| Tool | 说明 |
+|------|------|
+| `order_stock` | 同步下单（返回 order_id） |
+| `order_stock_async` | 异步下单（返回 seq） |
+| `cancel_order_stock` | 同步撤单（按 order_id） |
+| `cancel_order_stock_async` | 异步撤单（按 order_id） |
+| `cancel_order_stock_sysid` | 同步撤单（按 sysid） |
+| `cancel_order_stock_sysid_async` | 异步撤单（按 sysid） |
+| `fund_transfer` | 资金划转（普通/快速资金互转） |
+
+### 查询 - 股票账户
+
+| Tool | 说明 |
+|------|------|
+| `query_stock_asset` | 查询账户资产 |
+| `query_stock_orders` | 查询今日订单 |
+| `query_stock_trades` | 查询今日成交 |
+| `query_stock_positions` | 查询持仓 |
+| `query_position_statistics` | 查询期货持仓统计 |
+
+### 查询 - 信用账户
+
+| Tool | 说明 |
+|------|------|
+| `query_credit_detail` | 查询信用账户明细 |
+| `query_stk_compacts` | 查询融资融券合约 |
+| `query_credit_subjects` | 查询融资标的 |
+| `query_credit_slo_code` | 查询可融券源 |
+| `query_credit_assure` | 查询担保品 |
+
+### 查询 - 其他
+
+| Tool | 说明 |
+|------|------|
+| `query_new_purchase_limit` | 查询新股申购额度 |
+| `query_ipo_data` | 查询今日新股信息 |
+| `query_account_infos` | 查询所有账户信息 |
+| `query_account_status` | 查询账户状态 |
+| `query_com_fund` | 查询场外基金 |
+| `query_com_position` | 查询场外基金持仓 |
+| `export_data` | 导出数据到文件 |
+| `query_data` | 查询并读取数据 |
+
+### 券源借券
+
+| Tool | 说明 |
+|------|------|
+| `smt_query_quoter` | 查询券源报价 |
+| `smt_negotiate_order_async` | 协商借券异步订单 |
+| `smt_query_compact` | 查询借券合约 |
+
 ## 响应格式
 
 所有 tool 均返回统一 JSON 格式：
@@ -140,8 +217,14 @@ qmt-trade-mcp/
 ## 测试
 
 ```bash
-# 运行所有 tool 的功能测试（需先启动 MCP 服务）
+# 运行行情 tool 功能测试（需先启动 MCP 服务）
 uv run pytest tests/test_server.py -v
+
+# 运行交易 tool 功能测试（需先启动 MCP 服务）
+uv run pytest tests/test_trader.py -v
+
+# 运行所有测试
+uv run pytest tests/ -v
 ```
 
 测试使用 FastMCP Client HTTP/SSE 传输连接运行中的 MCP 服务（`http://127.0.0.1:8000/sse`），每个测试调用真实 xtquant 接口验证功能正常。
@@ -192,9 +275,9 @@ claude mcp list
 ```json
 {
   "mcpServers": {
-    "xtdata-mcp": {
+    "xtquant-mcp": {
       "url": "http://127.0.0.1:8000/sse",
-      "description": "迅投 xtquant 行情数据"
+      "description": "迅投 xtquant 行情数据 + 交易接口"
     }
   }
 }
@@ -205,8 +288,8 @@ claude mcp list
 如果 Claude Code 支持 stdio 模式，也可以用 uvicorn 作为载体：
 
 ```bash
-# 启动服务
-uvicorn src.xtdata_mcp.server:get_app --host 127.0.0.1 --port 8000 --log-level warning
+# 启动合并后的服务（行情+交易）
+uvicorn main:app --host 127.0.0.1 --port 8000 --log-level warning
 ```
 
 ### 验证
@@ -218,16 +301,22 @@ claude mcp list
 # 应该看到 xtdata-mcp 显示 Connected
 ```
 
-之后即可在对话中直接调用行情工具，例如：
+之后即可在对话中直接调用工具，例如：
 
 ```
 帮我查询 600000.SH 的最新日线行情
 获取银行板块的所有成分股
 查看上证指数的最新成分股权重
+
+帮我初始化交易通道
+查询我的账户资产
+买入 600000.SH 100股，价格 10.0元
 ```
 
 ## 注意事项
 
-- 使用前需确保 QMT 客户端**已登录运行**，且登录时需**勾选"独立交易"选项**，否则所有工具返回 `ok: false`
+- 使用交易功能前需确保 QMT 客户端**已登录运行**，且登录时需**勾选"独立交易"选项**，否则交易工具返回 `ok: false`
 - 首次使用需先调用 `download_*` 系列工具下载本地数据
 - 部分工具（如 `download_history_data2`、`download_index_weight`）数据量较大，调用时可能耗时较长
+- **交易为高风险操作，下单前请确认账户、股票代码、价格、数量等参数正确无误**
+- 市价单仅在实盘交易有效，模拟交易不支持市价单
