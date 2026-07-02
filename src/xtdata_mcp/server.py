@@ -670,14 +670,14 @@ def get_etf_info() -> dict[str, Any]:
 
 def get_app() -> Any:
     """获取 ASGI 应用，供 uvicorn 等服务器使用。"""
-    return mcp.http_app(transport="sse")
+    return mcp.http_app(transport="streamable-http")
 
 
 def main() -> None:
     import os
     host = os.getenv("MCP_HOST", "127.0.0.1")
     port = int(os.getenv("MCP_PORT", "8000"))
-    mcp.run(transport="sse", host=host, port=port)
+    mcp.run(transport="streamable-http", host=host, port=port)
 
 
 if __name__ == "__main__":

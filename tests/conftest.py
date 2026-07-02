@@ -1,17 +1,18 @@
 """
-pytest fixtures - 使用 FastMCP Client HTTP/SSE 传输测试运行中的 MCP 服务。
+pytest fixtures - 使用 FastMCP Client streamable-http 传输测试运行中的 MCP 服务。
 """
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 import pytest
 from fastmcp import Client
 from fastmcp.exceptions import ToolError
 
-# MCP 服务地址
-MCP_SERVER_URL = "http://127.0.0.1:8000/sse"
+# MCP 服务地址 (streamable-http)
+MCP_SERVER_URL = f"http://{os.getenv('MCP_HOST', '127.0.0.1')}:{os.getenv('MCP_PORT', '8000')}/mcp"
 
 
 @pytest.fixture
@@ -23,7 +24,7 @@ async def mcp_client() -> Any:
 
 async def call_tool(client: Client, tool_name: str, arguments: dict) -> dict[str, Any]:
     """
-    通过 FastMCP Client HTTP/SSE 传输调用 tool。
+    通过 FastMCP Client streamable-http 传输调用 tool。
     返回 {"ok": True/False, "data"/"error": ...} 格式。
     某些工具可能因数据序列化问题返回错误，这是 xtquant 数据本身的限制。
     """

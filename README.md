@@ -1,6 +1,6 @@
 # qmt-trade-mcp
 
-基于 [FastMCP](https://github.com/jlowin/fastmcp) 框架构建的 MCP（Model Context Protocol）服务，封装迅投 `xtquant` 行情数据接口和交易接口，通过 SSE 传输协议提供行情查询和交易能力。
+基于 [FastMCP](https://github.com/jlowin/fastmcp) 框架构建的 MCP（Model Context Protocol）服务，封装迅投 `xtquant` 行情数据接口和交易接口，通过 streamable-http 传输协议提供行情查询和交易能力。
 
 **免责声明：AI 可能会犯错，用户需自行承担交易带来的损失。本服务仅提供接口封装，不对交易结果负责。**
 
@@ -33,20 +33,43 @@ uv sync
 uv run python main.py
 ```
 
-服务默认监听 `127.0.0.1:8000`，可通过环境变量自定义：
+服务默认监听 `127.0.0.1:8000`，可通过 `.env` 文件或环境变量自定义：
 
 ```bash
+# 复制配置文件模板
+cp .env.example .env
+
+# 编辑 .env 配置
+# MCP_HOST=127.0.0.1    # 监听地址
+# MCP_PORT=8000          # 监听端口
+# MCP_AUTH_ENABLED=false # 启用 Bearer Token 授权
+# MCP_AUTH_TOKEN=        # Bearer Token
+
+# 或通过环境变量覆盖
 MCP_HOST=0.0.0.0 MCP_PORT=9000 uv run python main.py
+
+# 启用授权
+MCP_AUTH_ENABLED=true MCP_AUTH_TOKEN=your-token uv run python main.py
+```
+
+### 健康检查
+
+```bash
+curl http://127.0.0.1:8000/health
+# {"status":"ok"}
 ```
 
 ### 验证服务
 
-访问 `http://127.0.0.1:8000/sse` 建立 SSE 连接后，即可通过 MCP 协议调用各工具。
+MCP 客户端连接地址为 `http://127.0.0.1:8000/mcp`（streamable-http 协议）。
+
+启用授权时需携带 `Authorization: Bearer <token>` 请求头。
 
 ## 项目结构
 
 ```
 qmt-trade-mcp/
+├── .env.example                # 配置文件模板
 ├── main.py                     # 服务入口，uvicorn 加载合并后的 MCP 应用
 ├── pyproject.toml              # 项目配置及依赖
 ├── src/
@@ -60,9 +83,10 @@ qmt-trade-mcp/
 │       └── server.py            # 37 个交易 tools
 └── tests/
     ├── __init__.py
-    ├── conftest.py            # pytest fixtures（HTTP/SSE 传输测试客户端）
+    ├── conftest.py            # pytest fixtures（streamable-http 传输测试客户端）
     ├── test_server.py         # 行情 tool 功能测试
-    └── test_trader.py         # 交易 tool 功能测试
+    ├── test_trader.py         # 交易 tool 功能测试
+    └── test_auth.py           # Bearer Auth 中间件测试
 ```
 
 ## 提供的 MCP Tools（共 58 个）
@@ -227,11 +251,11 @@ uv run pytest tests/test_trader.py -v
 uv run pytest tests/ -v
 ```
 
-测试使用 FastMCP Client HTTP/SSE 传输连接运行中的 MCP 服务（`http://127.0.0.1:8000/sse`），每个测试调用真实 xtquant 接口验证功能正常。
+测试使用 FastMCP Client streamable-http 传输连接运行中的 MCP 服务（`http://127.0.0.1:8000/mcp`），每个测试调用真实 xtquant 接口验证功能正常。
 
 ## 部署说明
 
-本服务通过 SSE（Server-Sent Events）传输协议提供 MCP 接口，适用于兼容 SSE 的 MCP 客户端（如 Claude Desktop、Dify 等）。
+本服务通过 streamable-http 传输协议提供 MCP 接口，适用于兼容 streamable-http 的 MCP 客户端（如 Claude Desktop、Dify 等）。
 
 推荐通过反向代理（如 Nginx）将服务暴露到指定路径或域名：
 
@@ -245,16 +269,16 @@ location /mcp {
 }
 ```
 
-SSE 端点：`GET /sse`（建立 SSE 连接）
-消息端点：`POST /messages/?session_id=<id>`（调用工具）
+MCP 端点：`/mcp`（streamable-http）  
+健康检查：`GET /health`
 
 ## Claude Code 配置
 
-本服务以 SSE 传输模式运行，Claude Code 可通过 HTTP URL 方式接入。
+本服务以 streamable-http 传输模式运行，Claude Code 可通过 HTTP URL 方式接入。
 
 ### 方式一：命令行添加（推荐）
 
-先在后台启动服务，再将 SSE URL 注册到 Claude Code：
+先在后台启动服务，再将 URL 注册到 Claude Code：
 
 ```bash
 # 1. 启动服务（后台运行）
@@ -262,7 +286,7 @@ uv run python main.py &
 sleep 3
 
 # 2. 添加到 Claude Code（全局）
-claude mcp add xtdata-mcp --url http://127.0.0.1:8000/sse
+claude mcp add xtdata-mcp --url http://127.0.0.1:8000/mcp --transport streamable-http
 
 # 3. 验证是否添加成功
 claude mcp list
@@ -276,7 +300,8 @@ claude mcp list
 {
   "mcpServers": {
     "xtquant-mcp": {
-      "url": "http://127.0.0.1:8000/sse",
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:8000/mcp",
       "description": "迅投 xtquant 行情数据 + 交易接口"
     }
   }
