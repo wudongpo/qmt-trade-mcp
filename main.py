@@ -73,6 +73,7 @@ if __name__ == "__main__":
 
     app = xtdata_mcp.http_app(
         transport="streamable-http",
+        stateless_http=True,
         middleware=[
             Middleware(BearerAuthMiddleware, auth_enabled=auth_enabled, auth_token=auth_token)
         ],
