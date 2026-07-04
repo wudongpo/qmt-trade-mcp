@@ -16,6 +16,7 @@ host = os.getenv("MCP_HOST", "127.0.0.1")
 port = int(os.getenv("MCP_PORT", "8000"))
 auth_enabled = os.getenv("MCP_AUTH_ENABLED", "false").strip().lower() in ("true", "1", "yes")
 auth_token = os.getenv("MCP_AUTH_TOKEN", "")
+trade_enabled = os.getenv("MCP_TRADE_ENABLED", "true").strip().lower() in ("true", "1", "yes")
 
 _HEALTH_PATH = "/health"
 
@@ -64,10 +65,11 @@ async def health(request: Request) -> JSONResponse:
 if __name__ == "__main__":
     import uvicorn
     from src.xtdata_mcp.server import mcp as xtdata_mcp
-    from src.xttrade_mcp.server import mcp as xttrade_mcp
 
-    # 将 xttrade_mcp 挂载到 xtdata_mcp 上，所有工具合并到同一服务
-    xtdata_mcp.mount(xttrade_mcp)
+    if trade_enabled:
+        from src.xttrade_mcp.server import mcp as xttrade_mcp
+        # 将 xttrade_mcp 挂载到 xtdata_mcp 上，所有工具合并到同一服务
+        xtdata_mcp.mount(xttrade_mcp)
 
     app = xtdata_mcp.http_app(
         transport="streamable-http",
