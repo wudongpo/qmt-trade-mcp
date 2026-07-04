@@ -36,7 +36,7 @@ def _run(callable_obj, *args, **kwargs) -> dict[str, Any]:
         return _err(f"{type(exc).__name__}: {exc}")
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_full_tick(code_list: list[str]) -> dict[str, Any]:
     """
     获取当前全推市场快照数据。
@@ -58,7 +58,7 @@ def get_full_tick(code_list: list[str]) -> dict[str, Any]:
     return _run(xtdata.get_full_tick, code_list)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_market_data(
     field_list: list[str] | None = None,
     stock_list: list[str] | None = None,
@@ -111,7 +111,7 @@ def get_market_data(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_local_data(
     field_list: list[str] | None = None,
     stock_list: list[str] | None = None,
@@ -162,7 +162,7 @@ def get_local_data(
     return _run(xtdata.get_local_data, **kwargs)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_full_kline(
     field_list: list[str] | None = None,
     stock_list: list[str] | None = None,
@@ -207,7 +207,7 @@ def get_full_kline(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def download_history_data(
     stock_code: str,
     period: str,
@@ -246,7 +246,7 @@ def download_history_data(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def download_history_data2(
     stock_list: list[str],
     period: str,
@@ -283,7 +283,7 @@ def download_history_data2(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_divid_factors(
     stock_code: str,
     start_time: str = "",
@@ -315,7 +315,7 @@ def get_divid_factors(
     return _run(xtdata.get_divid_factors, stock_code, start_time, end_time)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_period_list() -> dict[str, Any]:
     """
     获取当前连接可用的行情数据周期列表。
@@ -335,7 +335,7 @@ def get_period_list() -> dict[str, Any]:
     return _run(xtdata.get_period_list)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_holidays() -> dict[str, Any]:
     """
     获取当前年度的所有节假日日期。
@@ -354,7 +354,7 @@ def get_holidays() -> dict[str, Any]:
     return _run(xtdata.get_holidays)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_trading_calendar(
     market: str,
     start_time: str = "",
@@ -380,7 +380,7 @@ def get_trading_calendar(
     return _run(xtdata.get_trading_calendar, market, start_time, end_time)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_trading_dates(
     market: str,
     start_time: str = "",
@@ -407,7 +407,7 @@ def get_trading_dates(
     return _run(xtdata.get_trading_dates, market, start_time, end_time, count)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_instrument_detail(stock_code: str, iscomplete: bool = False) -> dict[str, Any]:
     """
     获取合约详细基础信息。
@@ -446,7 +446,7 @@ def get_instrument_detail(stock_code: str, iscomplete: bool = False) -> dict[str
     return _run(xtdata.get_instrument_detail, stock_code, iscomplete)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_instrument_type(stock_code: str) -> dict[str, Any]:
     """
     获取合约类型。
@@ -470,7 +470,7 @@ def get_instrument_type(stock_code: str) -> dict[str, Any]:
     return _run(xtdata.get_instrument_type, stock_code)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_sector_list() -> dict[str, Any]:
     """
     获取所有可用的板块（行业/概念分类）列表。
@@ -489,7 +489,7 @@ def get_sector_list() -> dict[str, Any]:
     return _run(xtdata.get_sector_list)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_stock_list_in_sector(sector_name: str, real_timetag: int = 0) -> dict[str, Any]:
     """
     获取指定板块内的所有成分股列表。
@@ -511,7 +511,7 @@ def get_stock_list_in_sector(sector_name: str, real_timetag: int = 0) -> dict[st
     return _run(xtdata.get_stock_list_in_sector, sector_name, real_timetag)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_index_weight(index_code: str) -> dict[str, Any]:
     """
     获取指数成分股及其权重信息。
@@ -532,7 +532,7 @@ def get_index_weight(index_code: str) -> dict[str, Any]:
     return _run(xtdata.get_index_weight, index_code)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def download_index_weight() -> dict[str, Any]:
     """
     下载指数成分权重信息到本地。
@@ -551,7 +551,7 @@ def download_index_weight() -> dict[str, Any]:
     return _run(xtdata.download_index_weight)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_financial_data(
     stock_list: list[str],
     table_list: list[str] | None = None,
@@ -599,7 +599,7 @@ def get_financial_data(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_cb_info(stockcode: str) -> dict[str, Any]:
     """
     获取可转债（Convertible Bond）基础信息。
@@ -618,7 +618,7 @@ def get_cb_info(stockcode: str) -> dict[str, Any]:
     return _run(xtdata.get_cb_info, stockcode)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_ipo_info(start_time: str = "", end_time: str = "") -> dict[str, Any]:
     """
     获取新股申购信息。
@@ -649,7 +649,7 @@ def get_ipo_info(start_time: str = "", end_time: str = "") -> dict[str, Any]:
     return _run(xtdata.get_ipo_info, start_time, end_time)
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def get_etf_info() -> dict[str, Any]:
     """
     获取所有 ETF 申赎清单信息。

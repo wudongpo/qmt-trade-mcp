@@ -51,7 +51,7 @@ def _run_with_trader(callable_obj, *args, **kwargs) -> dict[str, Any]:
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def init_trader(path: str = "", session_id: int = 0) -> dict[str, Any]:
     """
     初始化交易通道并连接到 MiniQMT。
@@ -84,7 +84,7 @@ def init_trader(path: str = "", session_id: int = 0) -> dict[str, Any]:
         return _err(f"{type(exc).__name__}: {exc}")
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def start_trader() -> dict[str, Any]:
     """
     启动交易线程并准备环境。
@@ -105,7 +105,7 @@ def start_trader() -> dict[str, Any]:
     return _run_with_trader(lambda t: t.start())
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def connect_trader() -> dict[str, Any]:
     """
     连接到 MiniQMT。
@@ -125,7 +125,7 @@ def connect_trader() -> dict[str, Any]:
     return _run_with_trader(lambda t: t.connect())
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def stop_trader() -> dict[str, Any]:
     """
     停止交易通道。
@@ -148,7 +148,7 @@ def stop_trader() -> dict[str, Any]:
     return _ok({"message": "交易通道已停止"})
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def set_relaxed_response_order_enabled(enabled: bool = True) -> dict[str, Any]:
     """
     设置是否启用专用线程处理订单响应。
@@ -165,7 +165,7 @@ def set_relaxed_response_order_enabled(enabled: bool = True) -> dict[str, Any]:
     return _run_with_trader(lambda t: t.set_relaxed_response_order_enabled(enabled))
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def register_trader_callback(callback_type: str = "default") -> dict[str, Any]:
     """
     注册交易回调处理器。
@@ -189,7 +189,7 @@ def register_trader_callback(callback_type: str = "default") -> dict[str, Any]:
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def subscribe_account(account_id: str, account_type: str = "STOCK") -> dict[str, Any]:
     """
     订阅账户信息（资金、订单、成交、持仓）。
@@ -213,7 +213,7 @@ def subscribe_account(account_id: str, account_type: str = "STOCK") -> dict[str,
     return _run_with_trader(lambda t: t.subscribe(_make_account(account_id, account_type)))
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def unsubscribe_account(account_id: str, account_type: str = "STOCK") -> dict[str, Any]:
     """
     取消订阅账户信息。
@@ -248,7 +248,7 @@ def _make_account(account_id: str, account_type: str = "STOCK"):
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def order_stock(
     account_id: str,
     stock_code: str,
@@ -301,7 +301,7 @@ def order_stock(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def order_stock_async(
     account_id: str,
     stock_code: str,
@@ -342,7 +342,7 @@ def order_stock_async(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def cancel_order_stock(
     account_id: str,
     order_id: int,
@@ -372,7 +372,7 @@ def cancel_order_stock(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def cancel_order_stock_async(
     account_id: str,
     order_id: int,
@@ -400,7 +400,7 @@ def cancel_order_stock_async(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def cancel_order_stock_sysid(
     account_id: str,
     market: int,
@@ -431,7 +431,7 @@ def cancel_order_stock_sysid(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def cancel_order_stock_sysid_async(
     account_id: str,
     market: int,
@@ -467,7 +467,7 @@ def cancel_order_stock_sysid_async(
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def fund_transfer(
     account_id: str,
     transfer_direction: int,
@@ -507,7 +507,7 @@ def fund_transfer(
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_stock_asset(account_id: str, account_type: str = "STOCK") -> dict[str, Any]:
     """
     查询账户资产。
@@ -529,7 +529,7 @@ def query_stock_asset(account_id: str, account_type: str = "STOCK") -> dict[str,
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_stock_orders(
     account_id: str,
     cancelable_only: bool = False,
@@ -557,7 +557,7 @@ def query_stock_orders(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_stock_trades(account_id: str, account_type: str = "STOCK") -> dict[str, Any]:
     """
     查询今日成交。
@@ -577,7 +577,7 @@ def query_stock_trades(account_id: str, account_type: str = "STOCK") -> dict[str
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_stock_positions(account_id: str, account_type: str = "STOCK") -> dict[str, Any]:
     """
     查询持仓。
@@ -597,7 +597,7 @@ def query_stock_positions(account_id: str, account_type: str = "STOCK") -> dict[
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_position_statistics(account_id: str, account_type: str = "STOCK") -> dict[str, Any]:
     """
     查询期货持仓统计。
@@ -622,7 +622,7 @@ def query_position_statistics(account_id: str, account_type: str = "STOCK") -> d
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_credit_detail(account_id: str) -> dict[str, Any]:
     """
     查询信用账户明细。
@@ -641,7 +641,7 @@ def query_credit_detail(account_id: str) -> dict[str, Any]:
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_stk_compacts(account_id: str) -> dict[str, Any]:
     """
     查询融资融券合约。
@@ -660,7 +660,7 @@ def query_stk_compacts(account_id: str) -> dict[str, Any]:
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_credit_subjects(account_id: str) -> dict[str, Any]:
     """
     查询融资标的。
@@ -679,7 +679,7 @@ def query_credit_subjects(account_id: str) -> dict[str, Any]:
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_credit_slo_code(account_id: str) -> dict[str, Any]:
     """
     查询可融券源。
@@ -698,7 +698,7 @@ def query_credit_slo_code(account_id: str) -> dict[str, Any]:
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_credit_assure(account_id: str) -> dict[str, Any]:
     """
     查询担保品。
@@ -722,7 +722,7 @@ def query_credit_assure(account_id: str) -> dict[str, Any]:
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_new_purchase_limit(account_id: str, account_type: str = "STOCK") -> dict[str, Any]:
     """
     查询新股申购额度。
@@ -742,7 +742,7 @@ def query_new_purchase_limit(account_id: str, account_type: str = "STOCK") -> di
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_ipo_data() -> dict[str, Any]:
     """
     查询今日新股信息。
@@ -759,7 +759,7 @@ def query_ipo_data() -> dict[str, Any]:
     return _run_with_trader(lambda t: t.query_ipo_data())
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_account_infos() -> dict[str, Any]:
     """
     查询所有账户信息。
@@ -776,7 +776,7 @@ def query_account_infos() -> dict[str, Any]:
     return _run_with_trader(lambda t: t.query_account_infos())
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_account_status() -> dict[str, Any]:
     """
     查询账户状态。
@@ -793,7 +793,7 @@ def query_account_status() -> dict[str, Any]:
     return _run_with_trader(lambda t: t.query_account_status())
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_com_fund(account_id: str, account_type: str = "STOCK") -> dict[str, Any]:
     """
     查询场外基金。
@@ -813,7 +813,7 @@ def query_com_fund(account_id: str, account_type: str = "STOCK") -> dict[str, An
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_com_position(account_id: str, account_type: str = "STOCK") -> dict[str, Any]:
     """
     查询场外基金持仓。
@@ -833,7 +833,7 @@ def query_com_position(account_id: str, account_type: str = "STOCK") -> dict[str
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def export_data(
     account_id: str,
     result_path: str,
@@ -873,7 +873,7 @@ def export_data(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def query_data(
     account_id: str,
     result_path: str,
@@ -918,7 +918,7 @@ def query_data(
 # ============================================================================
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def smt_query_quoter(account_id: str) -> dict[str, Any]:
     """
     查询券源报价。
@@ -937,7 +937,7 @@ def smt_query_quoter(account_id: str) -> dict[str, Any]:
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def smt_negotiate_order_async(
     account_id: str,
     src_group_id: str,
@@ -980,7 +980,7 @@ def smt_negotiate_order_async(
     )
 
 
-@mcp.tool()
+@mcp.tool(output_schema=None)
 def smt_query_compact(account_id: str) -> dict[str, Any]:
     """
     查询借券合约。

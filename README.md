@@ -95,63 +95,71 @@ qmt-trade-mcp/
 
 ### 行情数据
 
-| Tool | 说明 |
-|------|------|
-| `get_full_tick` | 获取当前全推市场快照数据 |
+
+| Tool              | 说明                           |
+| ----------------- | ------------------------------ |
+| `get_full_tick`   | 获取当前全推市场快照数据       |
 | `get_market_data` | 从缓存获取行情数据（核心接口） |
-| `get_local_data` | 从本地数据文件直接读取行情数据 |
-| `get_full_kline` | 获取最新交易日 K 线全推数据 |
+| `get_local_data`  | 从本地数据文件直接读取行情数据 |
+| `get_full_kline`  | 获取最新交易日 K 线全推数据    |
 
 ### 历史数据下载
 
-| Tool | 说明 |
-|------|------|
-| `download_history_data` | 下载单个标的历史行情数据 |
+
+| Tool                     | 说明                         |
+| ------------------------ | ---------------------------- |
+| `download_history_data`  | 下载单个标的历史行情数据     |
 | `download_history_data2` | 批量下载多个标的历史行情数据 |
 
 ### 除权除息
 
-| Tool | 说明 |
-|------|------|
+
+| Tool                | 说明                                 |
+| ------------------- | ------------------------------------ |
 | `get_divid_factors` | 获取除权除息因子（分红/送股/配股等） |
 
 ### 交易日历
 
-| Tool | 说明 |
-|------|------|
-| `get_period_list` | 获取当前连接可用的行情周期列表 |
-| `get_holidays` | 获取当前年度所有节假日日期 |
-| `get_trading_calendar` | 获取指定市场的交易日历 |
-| `get_trading_dates` | 获取交易日列表（时间戳格式） |
+
+| Tool                   | 说明                           |
+| ---------------------- | ------------------------------ |
+| `get_period_list`      | 获取当前连接可用的行情周期列表 |
+| `get_holidays`         | 获取当前年度所有节假日日期     |
+| `get_trading_calendar` | 获取指定市场的交易日历         |
+| `get_trading_dates`    | 获取交易日列表（时间戳格式）   |
 
 ### 合约与板块
 
-| Tool | 说明 |
-|------|------|
-| `get_instrument_detail` | 获取合约详细基础信息 |
-| `get_instrument_type` | 判断合约类型（股票/指数/基金/ETF） |
-| `get_sector_list` | 获取所有可用板块列表 |
-| `get_stock_list_in_sector` | 获取指定板块的成分股列表 |
-| `get_index_weight` | 获取指数成分股及其权重 |
-| `download_index_weight` | 下载指数成分权重数据 |
+
+| Tool                       | 说明                               |
+| -------------------------- | ---------------------------------- |
+| `get_instrument_detail`    | 获取合约详细基础信息               |
+| `get_instrument_type`      | 判断合约类型（股票/指数/基金/ETF） |
+| `get_sector_list`          | 获取所有可用板块列表               |
+| `get_stock_list_in_sector` | 获取指定板块的成分股列表           |
+| `get_index_weight`         | 获取指数成分股及其权重             |
+| `download_index_weight`    | 下载指数成分权重数据               |
 
 ### 财务数据
 
-| Tool | 说明 |
-|------|------|
+
+| Tool                 | 说明                                |
+| -------------------- | ----------------------------------- |
 | `get_financial_data` | 获取财务数据（资产负债表/利润表等） |
 
 ### 可转债
 
-| Tool | 说明 |
-|------|------|
+
+| Tool          | 说明               |
+| ------------- | ------------------ |
 | `get_cb_info` | 获取可转债基础信息 |
 
 ### 新股 / ETF
 
-| Tool | 说明 |
-|------|------|
-| `get_ipo_info` | 获取新股申购信息 |
+
+| Tool           | 说明                  |
+| -------------- | --------------------- |
+| `get_ipo_info` | 获取新股申购信息      |
 | `get_etf_info` | 获取 ETF 申赎清单信息 |
 
 ---
@@ -162,69 +170,75 @@ qmt-trade-mcp/
 
 ### 系统设置
 
-| Tool | 说明 |
-|------|------|
-| `init_trader` | 初始化交易通道并连接到 MiniQMT |
-| `start_trader` | 启动交易线程 |
-| `connect_trader` | 连接 MiniQMT |
-| `stop_trader` | 停止交易通道 |
-| `subscribe_account` | 订阅账户信息 |
-| `unsubscribe_account` | 取消订阅账户 |
+
+| Tool                                 | 说明                             |
+| ------------------------------------ | -------------------------------- |
+| `init_trader`                        | 初始化交易通道并连接到 MiniQMT   |
+| `start_trader`                       | 启动交易线程                     |
+| `connect_trader`                     | 连接 MiniQMT                     |
+| `stop_trader`                        | 停止交易通道                     |
+| `subscribe_account`                  | 订阅账户信息                     |
+| `unsubscribe_account`                | 取消订阅账户                     |
 | `set_relaxed_response_order_enabled` | 设置是否启用专用线程处理订单响应 |
-| `register_trader_callback` | 注册交易回调处理器 |
+| `register_trader_callback`           | 注册交易回调处理器               |
 
 ### 下单 / 撤单
 
-| Tool | 说明 |
-|------|------|
-| `order_stock` | 同步下单（返回 order_id） |
-| `order_stock_async` | 异步下单（返回 seq） |
-| `cancel_order_stock` | 同步撤单（按 order_id） |
-| `cancel_order_stock_async` | 异步撤单（按 order_id） |
-| `cancel_order_stock_sysid` | 同步撤单（按 sysid） |
-| `cancel_order_stock_sysid_async` | 异步撤单（按 sysid） |
-| `fund_transfer` | 资金划转（普通/快速资金互转） |
+
+| Tool                             | 说明                          |
+| -------------------------------- | ----------------------------- |
+| `order_stock`                    | 同步下单（返回 order_id）     |
+| `order_stock_async`              | 异步下单（返回 seq）          |
+| `cancel_order_stock`             | 同步撤单（按 order_id）       |
+| `cancel_order_stock_async`       | 异步撤单（按 order_id）       |
+| `cancel_order_stock_sysid`       | 同步撤单（按 sysid）          |
+| `cancel_order_stock_sysid_async` | 异步撤单（按 sysid）          |
+| `fund_transfer`                  | 资金划转（普通/快速资金互转） |
 
 ### 查询 - 股票账户
 
-| Tool | 说明 |
-|------|------|
-| `query_stock_asset` | 查询账户资产 |
-| `query_stock_orders` | 查询今日订单 |
-| `query_stock_trades` | 查询今日成交 |
-| `query_stock_positions` | 查询持仓 |
+
+| Tool                        | 说明             |
+| --------------------------- | ---------------- |
+| `query_stock_asset`         | 查询账户资产     |
+| `query_stock_orders`        | 查询今日订单     |
+| `query_stock_trades`        | 查询今日成交     |
+| `query_stock_positions`     | 查询持仓         |
 | `query_position_statistics` | 查询期货持仓统计 |
 
 ### 查询 - 信用账户
 
-| Tool | 说明 |
-|------|------|
-| `query_credit_detail` | 查询信用账户明细 |
-| `query_stk_compacts` | 查询融资融券合约 |
-| `query_credit_subjects` | 查询融资标的 |
-| `query_credit_slo_code` | 查询可融券源 |
-| `query_credit_assure` | 查询担保品 |
+
+| Tool                    | 说明             |
+| ----------------------- | ---------------- |
+| `query_credit_detail`   | 查询信用账户明细 |
+| `query_stk_compacts`    | 查询融资融券合约 |
+| `query_credit_subjects` | 查询融资标的     |
+| `query_credit_slo_code` | 查询可融券源     |
+| `query_credit_assure`   | 查询担保品       |
 
 ### 查询 - 其他
 
-| Tool | 说明 |
-|------|------|
+
+| Tool                       | 说明             |
+| -------------------------- | ---------------- |
 | `query_new_purchase_limit` | 查询新股申购额度 |
-| `query_ipo_data` | 查询今日新股信息 |
-| `query_account_infos` | 查询所有账户信息 |
-| `query_account_status` | 查询账户状态 |
-| `query_com_fund` | 查询场外基金 |
-| `query_com_position` | 查询场外基金持仓 |
-| `export_data` | 导出数据到文件 |
-| `query_data` | 查询并读取数据 |
+| `query_ipo_data`           | 查询今日新股信息 |
+| `query_account_infos`      | 查询所有账户信息 |
+| `query_account_status`     | 查询账户状态     |
+| `query_com_fund`           | 查询场外基金     |
+| `query_com_position`       | 查询场外基金持仓 |
+| `export_data`              | 导出数据到文件   |
+| `query_data`               | 查询并读取数据   |
 
 ### 券源借券
 
-| Tool | 说明 |
-|------|------|
-| `smt_query_quoter` | 查询券源报价 |
+
+| Tool                        | 说明             |
+| --------------------------- | ---------------- |
+| `smt_query_quoter`          | 查询券源报价     |
 | `smt_negotiate_order_async` | 协商借券异步订单 |
-| `smt_query_compact` | 查询借券合约 |
+| `smt_query_compact`         | 查询借券合约     |
 
 ## 响应格式
 
@@ -269,7 +283,7 @@ location /mcp {
 }
 ```
 
-MCP 端点：`/mcp`（streamable-http）  
+MCP 端点：`/mcp`（streamable-http）
 健康检查：`GET /health`
 
 ## Claude Code 配置
