@@ -10,6 +10,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
+from src.logging_setup import make_log_config
+
 load_dotenv()
 
 host = os.getenv("MCP_HOST", "127.0.0.1")
@@ -17,6 +19,8 @@ port = int(os.getenv("MCP_PORT", "8000"))
 auth_enabled = os.getenv("MCP_AUTH_ENABLED", "false").strip().lower() in ("true", "1", "yes")
 auth_token = os.getenv("MCP_AUTH_TOKEN", "")
 trade_enabled = os.getenv("MCP_TRADE_ENABLED", "true").strip().lower() in ("true", "1", "yes")
+log_dir = os.getenv("MCP_LOG_DIR", "logs")
+log_level = os.getenv("MCP_LOG_LEVEL", "INFO").upper()
 
 _HEALTH_PATH = "/health"
 
@@ -66,6 +70,8 @@ if __name__ == "__main__":
     import uvicorn
     from src.xtdata_mcp.server import mcp as xtdata_mcp
 
+    log_config = make_log_config(log_dir, log_level)
+
     if trade_enabled:
         from src.xttrade_mcp.server import mcp as xttrade_mcp
         # 将 xttrade_mcp 挂载到 xtdata_mcp 上，所有工具合并到同一服务
@@ -82,4 +88,10 @@ if __name__ == "__main__":
     # 通过 Starlette 底层路由注入 /health 端点
     app.routes.insert(0, Route("/health", health, methods=["GET"]))
 
-    uvicorn.run(app, host=host, port=port)
+    print(f"Starting MCP server on {host}:{port} (log dir: {log_dir})")
+    uvicorn.run(
+        app,
+        host=host,
+        port=port,
+        log_config=log_config,
+    )
