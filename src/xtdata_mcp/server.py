@@ -6,17 +6,25 @@ from fastmcp import FastMCP
 
 mcp = FastMCP("XtQuant.XtData MCP")
 
+xtdata = None 
+xt_trader = None
 
 def _xtdata():
     """
     延迟导入 xtquant.xtdata，避免在未安装 xtquant 的环境下启动即崩溃。
     """
-    try:
-        from xtquant import xtdata  # type: ignore
-    except Exception as exc:  # pragma: no cover
-        raise RuntimeError(
-            "无法导入 xtquant.xtdata。请先安装并配置 QMT/xtquant 运行环境。"
-        ) from exc
+    global xtdata
+    global xt_trader
+    if not xtdata:
+        try:
+            # from xtquant import xtdata  # type: ignore
+            from bigqmt_signal_trader.xtquant_compat import StockAccount,  configure
+            xt_trader,xtdata = configure()
+            acc = StockAccount(xt_trader.client.account_id, "STOCK")
+        except Exception as exc:  # pragma: no cover
+            raise RuntimeError(
+                "无法导入 xtquant.xtdata。请先安装并配置 QMT/xtquant 运行环境。"
+            ) from exc
     return xtdata
 
 
@@ -57,6 +65,55 @@ def get_full_tick(code_list: list[str]) -> dict[str, Any]:
     xtdata = _xtdata()
     return _run(xtdata.get_full_tick, code_list)
 
+@mcp.tool(output_schema=None)
+def get_tick_data(
+    field_list: list[str] | None = None,
+    stock_list: list[str] | None = None,
+    start_time: str = "",
+    end_time: str = "",
+    count: int = -1,
+    dividend_type: str = "none",
+    fill_data: bool = True,
+) -> dict[str, Any]:
+    """
+    从缓存获取tick数据（主要接口）。
+
+    输入参数:
+        field_list: list[str] | None - 要获取的字段列表，默认为空（返回所有字段）。
+            常见字段：'open'（开盘价）、'high'（最高价）、'low'（最低价）、'close'（收盘价）、
+            、'amount'（成交额）、'turn'（换手率）
+            "lastPrice"（最新价）,'open'（开盘价）、'high'（最高价）、'low'（最低价）、
+            "lastClose"(昨收),'amount'（成交额）、,
+            'volume'（成交量）,"askPrice","askVol","bidPrice","bidVol"]等
+        stock_list: list[str] | None - 股票代码列表，格式为 '代码.市场'，如 ['600000.SH', '000001.SZ']
+        start_time: str - 起始时间，格式为 'YYYYMMDD' 或 'YYYYMMDDHHmmSS'，如 '20240101'
+        end_time: str - 结束时间，格式同 start_time，默认为空（到最新）
+        count: int - 数据条数。>=0 时以 end_time 为基准向前取 count 条；-1 时返回所有数据，忽略 end_time
+        dividend_type: str - 复权类型，默认为 'none'（不复权）。
+            可选值：'none'（不复权）、'front'（前复权）、'back'（后复权）、
+            'front_ratio'（前复权比例）、'back_ratio'（后复权比例）
+        fill_data: bool - 是否填充数据（处理停牌期间的数据），默认为 True
+
+    输出:
+        dict[str, Any] - 字典格式：
+            - 逐笔（tick）：返回 { stock: np.ndarray }，按时间升序排列
+
+    功能说明:
+        从内存缓存中快速读取行情数据，是获取历史 K 线和逐笔数据的核心接口。
+        数据已加载到缓存中时调用此函数效率最高。未下载的数据需先调用 download_history_data。
+    """
+    xtdata = _xtdata()
+    return _run(
+        xtdata.get_market_data_ex,
+        field_list or ["time","stime","lastPrice","open","high","low","lastClose","amount","volume","pvolume","lastSettlementPrice","settlementPrice","askPrice","askVol","bidPrice","bidVol"],
+        stock_list or [],
+        "tick",
+        start_time,
+        end_time,
+        count,
+        dividend_type,
+        fill_data,
+    )
 
 @mcp.tool(output_schema=None)
 def get_market_data(
@@ -162,49 +219,49 @@ def get_local_data(
     return _run(xtdata.get_local_data, **kwargs)
 
 
-@mcp.tool(output_schema=None)
-def get_full_kline(
-    field_list: list[str] | None = None,
-    stock_list: list[str] | None = None,
-    period: str = "1m",
-    start_time: str = "",
-    end_time: str = "",
-    count: int = 1,
-    dividend_type: str = "none",
-    fill_data: bool = True,
-) -> dict[str, Any]:
-    """
-    获取最新交易日 K 线全推数据。
+# @mcp.tool(output_schema=None)
+# def get_full_kline(
+#     field_list: list[str] | None = None,
+#     stock_list: list[str] | None = None,
+#     period: str = "1m",
+#     start_time: str = "",
+#     end_time: str = "",
+#     count: int = 1,
+#     dividend_type: str = "none",
+#     fill_data: bool = True,
+# ) -> dict[str, Any]:
+#     """
+#     获取最新交易日 K 线全推数据。
 
-    输入参数:
-        field_list: list[str] | None - 要获取的字段列表，默认为空（返回所有字段）
-        stock_list: list[str] | None - 股票代码列表，格式为 '代码.市场'
-        period: str - K线周期，默认为 '1m'。支持 1m/5m/15m/30m/1h/1d 等
-        start_time: str - 起始时间，格式为 'YYYYMMDD' 或 'YYYYMMDDHHmmSS'
-        end_time: str - 结束时间
-        count: int - 数据条数，默认为 1（仅取最新交易日数据）
-        dividend_type: str - 复权类型，默认为 'none'
-        fill_data: bool - 是否填充数据，默认为 True
+#     输入参数:
+#         field_list: list[str] | None - 要获取的字段列表，默认为空（返回所有字段）
+#         stock_list: list[str] | None - 股票代码列表，格式为 '代码.市场'
+#         period: str - K线周期，默认为 '1m'。支持 1m/5m/15m/30m/1h/1d 等
+#         start_time: str - 起始时间，格式为 'YYYYMMDD' 或 'YYYYMMDDHHmmSS'
+#         end_time: str - 结束时间
+#         count: int - 数据条数，默认为 1（仅取最新交易日数据）
+#         dividend_type: str - 复权类型，默认为 'none'
+#         fill_data: bool - 是否填充数据，默认为 True
 
-    输出:
-        dict[str, Any] - 返回 { field: pd.DataFrame }，field 为字段名，DataFrame 索引为 stock_list，列为时间列表
+#     输出:
+#         dict[str, Any] - 返回 { field: pd.DataFrame }，field 为字段名，DataFrame 索引为 stock_list，列为时间列表
 
-    功能说明:
-        获取当前交易日的最新 K 线全推数据，适用于实时行情监控场景。
-        注意：此接口仅支持获取当前交易日数据，不返回历史数据。
-    """
-    xtdata = _xtdata()
-    return _run(
-        xtdata.get_full_kline,
-        field_list or [],
-        stock_list or [],
-        period,
-        start_time,
-        end_time,
-        count,
-        dividend_type,
-        fill_data,
-    )
+#     功能说明:
+#         获取当前交易日的最新 K 线全推数据，适用于实时行情监控场景。
+#         注意：此接口仅支持获取当前交易日数据，不返回历史数据。
+#     """
+#     xtdata = _xtdata()
+#     return _run(
+#         xtdata.get_full_kline,
+#         field_list or [],
+#         stock_list or [],
+#         period,
+#         start_time,
+#         end_time,
+#         count,
+#         dividend_type,
+#         fill_data,
+#     )
 
 
 @mcp.tool(output_schema=None)

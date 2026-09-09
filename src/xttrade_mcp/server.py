@@ -72,7 +72,10 @@ def init_trader(path: str = "", session_id: int = 0) -> dict[str, Any]:
     """
     global _trader
     try:
-        from xtquant import xtttrader as xttrader
+        # from xtquant import xtttrader as xttrader
+        from bigqmt_signal_trader.xtquant_compat import StockAccount, xtttrader as xttrader, configure
+        _trader, xtdata = configure()
+        acc = StockAccount(_trader.client.account_id, "STOCK")
     except Exception as exc:
         return _err(f"无法导入 xtquant.xtttrader: {exc}")
 
