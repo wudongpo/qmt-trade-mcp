@@ -11,7 +11,7 @@ xt_trader = None
 
 def _xtdata():
     """
-    延迟导入 xtquant.xtdata，避免在未安装 xtquant 的环境下启动即崩溃。
+    延迟导入 bigqmt_signal_trader.xtdata，避免在未安装 xtquant 的环境下启动即崩溃。
     """
     global xtdata
     global xt_trader
@@ -23,7 +23,7 @@ def _xtdata():
             acc = StockAccount(xt_trader.client.account_id, "STOCK")
         except Exception as exc:  # pragma: no cover
             raise RuntimeError(
-                "无法导入 xtquant.xtdata。请先安装并配置 QMT/xtquant 运行环境。"
+                "无法导入 bigqmt_signal_trader 运行环境。"
             ) from exc
     return xtdata
 

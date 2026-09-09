@@ -54,6 +54,15 @@ def make_log_config(log_dir: str, log_level: str = "INFO") -> dict:
                 "level": log_level,
                 "propagate": False,
             },
+            # 应用自身日志（如 qmt.request 请求耗时日志），使用独立的 qmt.*
+            # 命名空间，避免与 MCP SDK 的 mcp.* logger 混淆。
+            # 必须显式声明：disable_existing_loggers=True 时，未在此列出的
+            # 已存在 logger（包括 mcp.* SDK logger）会被 dictConfig 禁用。
+            "qmt": {
+                "handlers": ["file", "console"],
+                "level": log_level,
+                "propagate": False,
+            },
         },
         "root": {"handlers": ["file", "console"], "level": log_level},
     }
