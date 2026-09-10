@@ -9,6 +9,7 @@ dependencies = [
     "xtquant>=250516.1.1",
     "uvicorn>=0.30.0",
     "python-dotenv>=1.0.0",
+    "xtquant-big-convert[redis]>=0.3.19",
 ]
 
 [dependency-groups]
