@@ -1,0 +1,103 @@
+# ============================================================
+# QMT Trade MCP - Nginx 反向代理 + 限流示例配置
+#
+# 用法：
+#   1. limit_req_zone / limit_conn_zone 必须放在 nginx.conf 的
+#      http {} 块内（不能放在 server {} 内），可直接把下面两行
+#      加入 http 块，或用 include 引入本文件的 server 片段。
+#   2. 将 server 片段放入 sites-available / conf.d，按需修改
+#      server_name、ssl 证书路径与上游端口。
+#   3. nginx -t 测试配置后 reload。
+# ============================================================
+
+# ---------- 放入 http {} 块 ----------
+# 按客户端 IP 限制请求速率：平均 10 请求/秒，桶容量 10m（约 16 万 IP）
+limit_req_zone  $binary_remote_addr  zone=mcp_req:10m   rate=10r/s;
+# 按客户端 IP 限制并发连接数
+limit_conn_zone $binary_remote_addr  zone=mcp_conn:10m;
+
+# upstream 连接复用（放在 http {} 块内）
+upstream mcp_backend {
+    server 127.0.0.1:8000;
+    keepalive 32;
+}
+
+# ---------- 放入 http {} 块（server 片段） ----------
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name mcp.example.com;  # TODO: 改为实际域名
+
+    # ssl_certificate     /path/to/fullchain.pem;   # TODO
+    # ssl_certificate_key /path/to/privkey.pem;     # TODO
+
+    # 超限后的返回码（默认 limit_req 为 503，这里统一显式声明）
+    limit_req_status  429;
+    limit_conn_status 503;
+
+    # MCP streamable-http 端点
+    location /mcp/ {
+        # 速率限制：允许突发 20 个请求排队，nodelay 表示突发请求立即处理而非匀速放行
+        limit_req  zone=mcp_req burst=20 nodelay;
+        # 并发连接限制：单 IP 最多 10 个在途连接
+        limit_conn mcp_conn 10;
+
+        proxy_pass         http://mcp_backend;
+        proxy_http_version 1.1;
+        # 清空 Connection 头以启用 upstream keepalive
+        proxy_set_header   Connection "";
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+        # 透传 Bearer Token（MCP 鉴权依赖此头）
+        proxy_set_header   Authorization     $http_authorization;
+
+        # streamable-http 为流式响应，必须关闭代理缓冲
+        proxy_buffering    off;
+        proxy_cache        off;
+
+        # 工具调用（xtquant 查询/下单）可能较慢，按实际耗时调整
+        proxy_connect_timeout 5s;
+        proxy_read_timeout    300s;
+        proxy_send_timeout    300s;
+
+        client_max_body_size 10m;
+    }
+
+    # 健康检查：不限流，仅供负载均衡/监控探活
+    location = /health {
+        proxy_pass         http://mcp_backend/health;
+        proxy_http_version 1.1;
+        proxy_set_header   Connection "";
+        access_log         off;
+    }
+
+    # 其他路径一律拒绝
+    location / {
+        return 404;
+    }
+}
+
+# HTTP 跳转 HTTPS
+server {
+    listen 80;
+    server_name mcp.example.com;  # TODO: 改为实际域名
+    return 301 https://$host$request_uri;
+}
+
+# ============================================================
+# 备注：
+# - 若需按调用方（Bearer Token）区分限流配额，可在 http 块用
+#   map 提取 token 作为 zone key，未带 token 时回退到 IP：
+#
+#   map $http_authorization $mcp_client_key {
+#       default         $binary_remote_addr;
+#       "~^Bearer\ .+" $http_authorization;
+#   }
+#   limit_req_zone  $mcp_client_key zone=mcp_req:10m  rate=10r/s;
+#   limit_conn_zone $mcp_client_key zone=mcp_conn:10m;
+#
+# - 应用层并发上限由 MCP_MAX_CONCURRENCY 控制（见 .env），
+#   Nginx 的 limit_conn 是第一道粗粒度防线，两者配合使用。
+# ============================================================
