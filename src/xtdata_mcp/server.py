@@ -135,7 +135,7 @@ def get_market_data(
             'volume'（成交量）、'amount'（成交额）、'turn'（换手率）等
         stock_list: list[str] | None - 股票代码列表，格式为 '代码.市场'，如 ['600000.SH', '000001.SZ']
         period: str - K线周期，默认为 '1d'。
-            可选值：'tick'（逐笔）、'1m'（1分钟）、'5m'（5分钟）、'15m'、'30m'、'1h'（60分钟）、
+            可选值：'1m'（1分钟）、'5m'（5分钟）、'15m'、'30m'、'1h'（60分钟）、
             '1d'（日线）、'1w'（周线）、'1mon'（月线）、'1q'（季线）、'1hy'（半年线）、'1y'（年线）
         start_time: str - 起始时间，格式为 'YYYYMMDD' 或 'YYYYMMDDHHmmSS'，如 '20240101'
         end_time: str - 结束时间，格式同 start_time，默认为空（到最新）
@@ -156,7 +156,7 @@ def get_market_data(
     """
     xtdata = _xtdata()
     return _run(
-        xtdata.get_market_data,
+        xtdata.get_market_data_ex,
         field_list or [],
         stock_list or [],
         period,
